@@ -69,9 +69,10 @@
         scene.add( cube );
         
         const geometry2 = new THREE.BoxGeometry(000,200,200);
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			const cube2 = new THREE.Mesh( geometry2, material );
-			scene.add( cube2 );
+		const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	    const cube2 = new THREE.Mesh( geometry2, material );
+        cube2.addEventListener('click', () => alert('Button clicked!'));
+		scene.add( cube2 );
 
         function animate() {
             renderer.render( scene, camera );
