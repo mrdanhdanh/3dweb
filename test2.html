@@ -160,6 +160,26 @@
             $('#direction').html(camera.position.x+'|'+camera.position.y+'|'+camera.position.z);
         }
 
+        $(document).on('keydown', function(e) {
+            let i = e.keyCode;
+            switch(i) {
+                case 87:
+                    moveForward();
+                    break;
+                case 83:
+                    moveBack();
+                    break;
+                case 65:
+                    moveLeft();
+                    break;
+                case 68:
+                    moveRight();
+                    break;
+                default:
+                    // code block
+
+            }
+        });
         function hideMP() {
             $("#movepad").toggle();
         }
