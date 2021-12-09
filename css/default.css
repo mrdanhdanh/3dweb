@@ -29,11 +29,15 @@
 #3droom {
     position: relative;
 }
+
 #movepad {
     position: absolute;
-    bottom: 5%;
-    right: 5%;
-    width: 10%;
+    bottom: 50px;
+    right: 0;
+    width: 200px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.6);
+
 }
 #movepad .row {
     margin:0;
@@ -43,7 +47,12 @@
     margin:5px 0 5px 0;
     width: 100%;
 }
-
+#movepad form {
+    margin-bottom: 20px;
+}
+#movepad form button{
+    width: 100%;
+}
 #hideMP {
     position: absolute;
     bottom: 0;

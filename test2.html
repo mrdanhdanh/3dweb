@@ -28,7 +28,7 @@
     </div>
 
     <div id="3droom">
-        <div id="movepad">
+        <div id="movepad" style="display: none;">
             <form action="#" method="post">
                 <select class="form-select" id="sel1" name="sellist1">
                     <option value="1">Room 1</option>
@@ -144,7 +144,6 @@
     </script>
     <script>
         $(document).ready(function(){
-            $("#movepad").hide();
             window.addEventListener('resize', function() {
                 var width = window.innerWidth;
                 var height = window.innerHeight;
