@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="hideshow()">Ẩn/hiện</button>
+    <div id="datacreate" class="row" style="">
+        <div class="col colmd-6">
+            <form action="" method="post">
+                <label for="date">Ngày:</label><input type="date" id="date" name="date" required><br>
+                <label for="time_in">Giờ đến:</label><input type="time" id="time_in" name="time_in" required><br>
+                <label for="time_out">Giờ đi:</label><input type="time" id="time_out" name="time_out" required><br>
+                <label for="location">Địa điểm:</label><input type="text" id="location" name="location" required><br>
+                <label for="geo_location">Google map link:</label><input type="text" id="geo_location" name="geo_location" required><br>  
+            </form>
+            <button onclick="createdata()">Tạo data</button></div>
+        <div class="col colmd-6">
+            <code id="codedata"></code>
+        </div>
+    </div>
+    
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Ngày</th>
+            <th>Giờ đến</th>
+            <th>Giờ đi</th>
+            <th>Địa điểm</th>
+            <th>Google Maps</th>
+        </tr>
+        </thead>
+        <tbody id="tbdata">
+
+        </tbody>
+    </table>
+    <script id="table-template" type="text/x-handlebars-template">
+        {{#each data}}
+            <tr>
+                <td>{{date}}</td>
+                <td>{{time_in}}</td>
+                <td>{{time_out}}</td>
+                <td>{{location}}</td>
+                <td><button onclick="showmap('{{geo_location}}')">Xem map</button></td>
+            </tr>
+        {{/each}}
+    </script>
+    <script src="./js/jquery-3.5.1.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/three.min.js"></script>
+    <script src="./handlebarjs/handlebars-v4.7.6.js"></script>
+    <script src="./locasave.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#datacreate").hide();
+            let jsonData = {
+            data: getData()
+            };
+            let target = $("#tbdata");
+            let source = $("#table-template").html();
+            let template = Handlebars.compile(source);
+            $(target).html(template((jsonData)));
+            // Xu ly handlebars
+        });
+        
+        function showmap(link) {
+            window.open(link, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=100");
+            window.close();
+        }
+
+        function createdata(){
+            $("#codedata").html("{<br>date: &#34;"+$("#date").val()+"&#34;,<br>time_in: &#34;"+$("#time_in").val()+"&#34;,<br>time_out: &#34;"+$("#time_out").val()+"&#34;,<br>location: &#34;"+$("#location").val()+"&#34;,<br>geo_location: &#34;"+$("#geo_location").val()+"&#34;<br>}");
+        }
+        function hideshow() {
+            $("#datacreate").toggle();
+        }
+    </script>
+</body>
+</html>
