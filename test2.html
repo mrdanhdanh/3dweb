@@ -51,7 +51,7 @@
     
 
     <div id="content1">
-        <video id="video1" muted></video>
+        <video id="video1" data-autoplayvideo="false" data-playvideoonclick="false" class="" src="blob:https://mega.nz/0f2d1fe7-b9f2-49ff-842d-0ada11b85679" style="background-size: auto; background-image: url(&quot;blob:https://mega.nz/80229d43-7bb0-48c9-b22d-9bb669497442&quot;);"></video>
     </div>
     <div id="content2"></div>
 
@@ -83,7 +83,6 @@
         let texture_lf = new THREE.TextureLoader().load( './image/room_lf.jpg');
 
         let video = document.getElementById('video1');
-        video.src = './video/big_buck.mp4';
         video.poster = './image/room_rt.jpg';
         let videoTex = new THREE.VideoTexture(video);
         
@@ -114,7 +113,7 @@
         //tạo phòng 2 với panorama
         let texture = new THREE.TextureLoader().load( './image/para/room.jpg');
         const geometry3 = new THREE.SphereGeometry(2000, 64, 32);
-        let material3 = new THREE.MeshBasicMaterial( { map: texture } );
+        let material3 = new THREE.MeshBasicMaterial( { map: videoTex } );
         material3.side = THREE.BackSide;
         let sphere = new THREE.Mesh(geometry3, material3);
         sphere.position.set(0,0,3000);

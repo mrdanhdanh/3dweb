@@ -3,60 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Web 3D</title>
+
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/default.css">
 
 </head>
 <body>
-    <div id="3droom"></div>
-    <video src="SplashTeam17.mp4" autoplay></video>
+    <ul class="nav justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link" href="#3droom">3D Room</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#content1">Content1</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#content2">Content2</a>
+        </li>
+    </ul>
+    <div id="status">
+        Status <span class="glyphicon glyphicon-menu-hamburger"></span>
+        <button onclick="getDirection()">get</button>
+        <div id="direction"></div>
+    </div>
+
+    <div id="3droom">
+        <div id="movepad" style="display: none;">
+            <form action="#" method="post">
+                <select class="form-select" id="sel1" name="sellist1">
+                    <option value="1">Room 1</option>
+                    <option value="2">Room 2</option>
+                </select>
+                <button type="button" class="btn btn-dark" onclick="roomJump()">Go</button>
+            </form>
+           
+            <button type="button" class="btn btn-primary" onclick="moveForward()">Forward</button>
+            <div class="row">
+                <button type="button" class="btn btn-info col-6" onclick="moveLeft()">Left</button>
+                <button type="button" class="btn btn-warning col-6" onclick="moveRight()">Right</button>
+            </div>
+            <button type="button" class="btn btn-danger" onclick="moveBack()">Back</button>
+        </div>
+        <div id="hideMP" onclick="hideMP()">
+            <span>+</span>
+        </div>
+    </div>
+    
+
+    <div id="content1">
+        <video id="video1" muted></video>
+    </div>
+    <div id="content2"></div>
 
     <script src="./js/jquery-3.5.1.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/three.min.js"></script>
     <script src="./js/OrbitControls.js"></script>
-
+    <script src="./js/threex.domevents.js"></script>
     
     <script>
         let scene, camera, renderer;
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 20, 3000 );
-        camera.position.set(-400,0,0);
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 5, 20000 );
+        camera.position.set(-200,0,0);
 
-        renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer = new THREE.WebGLRenderer({antialias:true, alpha: true});
         renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor( 0xFFFFFF, 0 ); // the default
         document.getElementById('3droom').appendChild( renderer.domElement );
 
         let controls = new THREE.OrbitControls(camera, renderer.domElement ); //xoay phòng, zoom
 
-        //nạp hình 6 cạnh
-        let materialArray = [];
-        let texture_ft = new THREE.TextureLoader().load( './image/para_ft.jpg');
-        let texture_bk = new THREE.TextureLoader().load( './image/para_bk.jpg');
-        let texture_up = new THREE.TextureLoader().load( './image/room_up.jpg');
-        let texture_dn = new THREE.TextureLoader().load( './image/room_dn.jpg');
-        let texture_rt = new THREE.TextureLoader().load( './image/para_rt.jpg');
-        let texture_lf = new THREE.TextureLoader().load( './image/para_lf.jpg');
+        //Nạp Video thành Texture
+        let video = document.getElementById('video1');
+        video.src = 'https://cdn.videvo.net/videvo_files/video/premium/video0226/large_watermarked/09_Movcha_Denia_Darina_04_vostorg_shopping_preview.mp4';
+        let videoTex = new THREE.VideoTexture(video);
+        
+        //tạo button chiếu clip
+        const geometry2 = new THREE.BoxGeometry(100,100,0);
+		const material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	    let cube2 = new THREE.Mesh( geometry2, material2 );
+
+        cube2.position.set(400,-200,800);
+		scene.add( cube2 );
 
         
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
-        materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }))
 
-        for (let i=0;i<6;i++) {
-            materialArray[i].side = THREE.BackSide;
+        //tạo phòng Panorama
+        let roomTex = new THREE.TextureLoader().load( './image/para/room.jpg');
+        const roomGeo = new THREE.SphereGeometry(10000, 64, 32);
+        let roomMat = new THREE.MeshBasicMaterial( { map: roomTex } );
+        roomMat.side = THREE.BackSide;
+        let room_sphere = new THREE.Mesh(roomGeo, roomMat);
+        room_sphere.position.set(0,0,0);
+        scene.add(room_sphere);
+
+        //tạo màn chiếu clip cong
+        let screenTex = new THREE.TextureLoader().load( './image/tivi.png' );
+        const screenGeo = new THREE.SphereGeometry(9900, 64, 32, 0, Math.PI/2, Math.PI*3/8, Math.PI/4);
+        let screenMat = new THREE.MeshBasicMaterial( { map: screenTex } );
+        screenMat.side = THREE.BackSide;
+        screenGeo.rotateY(1);
+        let screen_sphere = new THREE.Mesh(screenGeo, screenMat);
+        screen_sphere.material.transparent = true;
+        screen_sphere.position.set(0,0,0);
+        scene.add(screen_sphere);
+
+        //chiếu clip
+        var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+        domEvents.addEventListener(cube2, 'click', onCubeClick, false);
+        function onCubeClick(event){
+            if (event.target == cube2) {
+                screen_sphere.material = new THREE.MeshBasicMaterial( { map: videoTex });
+                screen_sphere.material.side = THREE.BackSide;
+                video.muted = false;
+                video.play();
+                video.onended = function(){
+                    screen_sphere.material = new THREE.MeshBasicMaterial( { map: screenTex });
+                    screen_sphere.material.side = THREE.BackSide;
+                }
+            }
         }
 
-        //Tạo khối cuối
-        const geometry = new THREE.BoxGeometry(2000,1700,2000);
-        const cube = new THREE.Mesh( geometry, materialArray );
-        scene.add( cube );
-        
-        const geometry2 = new THREE.BoxGeometry(000,200,200);
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			const cube2 = new THREE.Mesh( geometry2, material );
-			scene.add( cube2 );
 
         function animate() {
             renderer.render( scene, camera );
@@ -67,13 +135,95 @@
     <script>
         $(document).ready(function(){
             window.addEventListener('resize', function() {
-            var width = window.innerWidth;
-            var height = window.innerHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
+                var width = window.innerWidth;
+                var height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();  //responsive cho canvas
+
+                $("#content1").css("height", height);
+                $("#content2").css("height", height);
+            });
         });
-    });
+        function getDirection() {
+            $('#direction').html(camera.position.x+'|'+camera.position.y+'|'+camera.position.z);
+        }
+
+        $(document).on('keydown', function(e) {
+            let i = e.keyCode;
+            switch(i) {
+                case 87:
+                    moveForward();
+                    break;
+                case 83:
+                    moveBack();
+                    break;
+                case 65:
+                    moveLeft();
+                    break;
+                case 68:
+                    moveRight();
+                    break;
+                default:
+                    // code block
+
+            }
+        });
+        function hideMP() {
+            $("#movepad").toggle();
+        }
+        function roomJump() {
+            let i = $('#sel1').val();
+            switch(i) {
+                case '1':
+                    room_1.position.set(0,0,0);
+                    cube2.position.set(400,-200,800);
+                    sphere.position.set(0,0,3000);
+                    break;
+                case '2':
+                    room_1.position.set(0,0,-3000);
+                    cube2.position.set(400,-200,-2200);
+                    sphere.position.set(0,0,0);
+                    break;
+                default:
+                    // code block
+            }
+        }
+        //Function di chuyển
+        function moveForward() {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
+            for (let i=0; i<scene.children.length; i++) {
+                scene.children[i].position.x = scene.children[i].position.x - 100*XYZ.getComponent(0);
+                scene.children[i].position.y = scene.children[i].position.y - 100*XYZ.getComponent(1);
+                scene.children[i].position.z = scene.children[i].position.z - 100*XYZ.getComponent(2);
+            }
+        }
+        function moveBack() {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
+            for (let i=0; i<scene.children.length; i++) {
+                scene.children[i].position.x = scene.children[i].position.x + 100*XYZ.getComponent(0);
+                scene.children[i].position.y = scene.children[i].position.y + 100*XYZ.getComponent(1);
+                scene.children[i].position.z = scene.children[i].position.z + 100*XYZ.getComponent(2);
+            }
+        }
+        function moveLeft() {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
+            for (let i=0; i<scene.children.length; i++) {
+                scene.children[i].position.x = scene.children[i].position.x - 100*XYZ.getComponent(2);
+                scene.children[i].position.z = scene.children[i].position.z + 100*XYZ.getComponent(0);
+            }
+        }
+        function moveRight() {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
+            for (let i=0; i<scene.children.length; i++) {
+                scene.children[i].position.x = scene.children[i].position.x + 100*XYZ.getComponent(2);
+                scene.children[i].position.z = scene.children[i].position.z - 100*XYZ.getComponent(0);
+            }
+        }
     </script>
 </body>
 </html>
