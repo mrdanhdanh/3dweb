@@ -60,6 +60,8 @@
     <script src="./js/three.min.js"></script>
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/threex.domevents.js"></script>
+    <script type="module" src="./js/GLTFLoader.js"></script>
+    
     <script>
         function moveCam(x,y,z,a,b,c) {
             camera.position.set(x,y,z);
@@ -98,6 +100,7 @@
             }
         }
     </script>
+    
     <script>
         //Mặc định:
         //- Trục x: nhìn thẳng 
@@ -266,9 +269,7 @@
         }
 
 
-
-
-
+        
 
 
 
@@ -282,6 +283,7 @@
         };
         animate();
     </script>
+    
     <script>
         $(document).ready(function(){
             window.addEventListener('resize', function() {
