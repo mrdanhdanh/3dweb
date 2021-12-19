@@ -12,13 +12,10 @@
 <body>
     <ul class="nav justify-content-center">
         <li class="nav-item">
-            <a class="nav-link" href="#3droom">3D Room</a>
+            <a class="nav-link" href="#3dcentral">Central</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#content1">Content1</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#content2">Content2</a>
+            <a class="nav-link" href="#" onclick="moveCam(1050,1500,550)">Room 1</a>
         </li>
     </ul>
     <div id="status">
@@ -27,16 +24,8 @@
         <div id="direction"></div>
     </div>
 
-    <div id="3droom">
+    <div id="3dcentral">
         <div id="movepad" style="display: none;">
-            <form action="#" method="post">
-                <select class="form-select" id="sel1" name="sellist1">
-                    <option value="1">Room 1</option>
-                    <option value="2">Room 2</option>
-                </select>
-                <button type="button" class="btn btn-dark" onclick="roomJump()">Go</button>
-            </form>
-           
             <button type="button" class="btn btn-primary" onclick="moveForward()">Forward</button>
             <div class="row">
                 <button type="button" class="btn btn-info col-6" onclick="moveLeft()">Left</button>
@@ -53,7 +42,6 @@
     <div id="content1">
         <video id="video1" muted></video>
     </div>
-    <div id="content2"></div>
 
     <script src="./js/jquery-3.5.1.min.js"></script>
     <script src="./js/bootstrap.bundle.min.js"></script>
@@ -61,33 +49,64 @@
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/threex.domevents.js"></script>
     <script>
-        function moveCam(x,y,z,a,b,c) {
+        function moveCam(x,y,z) {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
             camera.position.set(x,y,z);
-            controls.target.x = a;
-            controls.target.y = b;
-            controls.target.z = c;
+            controls.target.x = x + 100*XYZ.getComponent(0) ;
+            controls.target.y = y + 100*XYZ.getComponent(1);
+            controls.target.z = z + 100*XYZ.getComponent(2);
             controls.update();
+        }
+        function nhapnhay(obj) {
+            var id = null;
+            var opa = 30;
+            clearInterval(id);
+            id = setInterval(frame, 100/3);
+            function frame() {
+                if (opa == 0) {
+                    clearInterval(id);
+                    obj.geometry.scale(1/Math.pow(1.1,25),1/Math.pow(1.1,25),1/Math.pow(1.1,25));
+                    obj.material.opacity = 1;
+                    var id2 = null;
+                    var scale = 0;
+                    clearInterval(id2);
+                    id2 = setInterval(frame, 10);
+                    function frame() {
+                        if (scale == 25) {
+                            clearInterval(id2);
+                        } else {
+                            scale++; 
+                            obj.geometry.scale(1.1,1.1,1.1);
+                        }
+                    }
+                    nhapnhay(obj);
+                } else {
+                    opa = opa - 1; 
+                    obj.material.opacity = opa/30;
+                }
+            }
         }
     </script>
     <script>
         //Mặc định:
-        //- Trục x: nhìn thẳng 
+        //- Trục x: nhìn qua phải
         //- Trục y: nhìn lên trên
-        //- trục z: nhìn qua phải
+        //- trục z: nhìn ra trước
         let scene, camera, renderer;
         scene = new THREE.Scene();
         renderer = new THREE.WebGLRenderer({antialias:true, alpha: true});
         renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setClearColor( 0xFFFFFF, 0 ); // the default
-        document.getElementById('3droom').appendChild( renderer.domElement );
+        document.getElementById('3dcentral').appendChild( renderer.domElement );
 
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 5, 200000 );
         let controls = new THREE.OrbitControls(camera, renderer.domElement ); //xoay phòng, zoom
-        moveCam(-5000,1500,0,-4950,1500,100);
+        moveCam(0,1500,10000);
 
         //tạo khu central
         let centralTex = new THREE.TextureLoader().load( './image/central.webp');
-        const roomGeo = new THREE.SphereGeometry(60000, 64, 32);
+        const roomGeo = new THREE.SphereGeometry(60000, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2);
         let centralMat = new THREE.MeshBasicMaterial( { map: centralTex } );
         centralMat.side = THREE.BackSide;
         let central_sphere = new THREE.Mesh(roomGeo, centralMat);
@@ -102,6 +121,46 @@
         scene.add(ground);
 
 
+
+        //Button cầu mặc định
+        const buttonGeo = new THREE.SphereGeometry(100, 64,32);
+        let buttonMat = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+        buttonMat.transparent = true;
+        let button = new THREE.Mesh(buttonGeo, buttonMat);
+        nhapnhay(button); //hiệu ứng cho button
+        // How to Clone a button
+        // button2 = button.clone();
+        // button.position.set
+        // scene.add(button2);
+
+        //Đổi con trỏ chuột thành pointer khi over button
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove( event ) {
+
+            // calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            // update the picking ray with the camera and mouse position
+            raycaster.setFromCamera( mouse, camera );
+
+            // calculate objects intersecting the picking ray
+            let intersects = raycaster.intersectObjects( scene.children );
+
+
+            if (intersects[0].object.material.uuid == button.material.uuid) {
+                $('html,body').css('cursor', 'pointer');
+            } else {
+                $('html,body').css('cursor', 'default');
+            }
+        }
+        window.addEventListener( 'mousemove', onMouseMove, false );
+        //
+
+
         function animate() {
             renderer.render( scene, camera );
             requestAnimationFrame( animate );
@@ -109,6 +168,9 @@
         };
         animate();
     </script>
+    <!-- Nạp các phòng  -->
+    <script src="./js/room/room_1.js"></script>
+
     <script>
         $(document).ready(function(){
             window.addEventListener('resize', function() {
@@ -150,59 +212,35 @@
         function hideMP() {
             $("#movepad").toggle();
         }
-        function roomJump() {
-            let i = $('#sel1').val();
-            switch(i) {
-                case '1':
-                    room_1.position.set(0,0,0);
-                    cube2.position.set(400,-200,800);
-                    sphere.position.set(0,0,3000);
-                    break;
-                case '2':
-                    room_1.position.set(0,0,-3000);
-                    cube2.position.set(400,-200,-2200);
-                    sphere.position.set(0,0,0);
-                    break;
-                default:
-                    // code block
-            }
-        }
+        
         //Function di chuyển
         function moveForward() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x + 300*XYZ.getComponent(0);
             let z = camera.position.z + 300*XYZ.getComponent(2);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z);
         }
         function moveBack() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x - 300*XYZ.getComponent(0);
             let z = camera.position.z - 300*XYZ.getComponent(2);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z);
         }
         function moveLeft() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
-            for (let i=0; i<scene.children.length; i++) {
-                scene.children[i].position.x = scene.children[i].position.x - 100*XYZ.getComponent(2);
-                scene.children[i].position.z = scene.children[i].position.z + 100*XYZ.getComponent(0);
-            }
+            let x = camera.position.x + 300*XYZ.getComponent(2);
+            let z = camera.position.z - 300*XYZ.getComponent(0);
+            moveCam(x,camera.position.y,z);
         }
         function moveRight() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
-            for (let i=0; i<scene.children.length; i++) {
-                scene.children[i].position.x = scene.children[i].position.x + 100*XYZ.getComponent(2);
-                scene.children[i].position.z = scene.children[i].position.z - 100*XYZ.getComponent(0);
-            }
+            let x = camera.position.x - 300*XYZ.getComponent(2);
+            let z = camera.position.z + 300*XYZ.getComponent(0);
+            moveCam(x,camera.position.y,z);
         }
     </script>
 </body>
