@@ -51,7 +51,9 @@
     
 
     <div id="content1">
-        <video id="video1" muted></video>
+        <video id="video1">
+            <source src="https://drive.google.com/uc?export=download&id=0B5dp6Ay50TDnZm9FMTNIaGc0RVk" type="video/mp4">
+        </video>
     </div>
     <div id="content2"></div>
 
@@ -83,7 +85,6 @@
         let texture_lf = new THREE.TextureLoader().load( './image/room_lf.jpg');
 
         let video = document.getElementById('video1');
-        video.src = './video/big_buck.mp4';
         video.poster = './image/room_rt.jpg';
         let videoTex = new THREE.VideoTexture(video);
         
@@ -115,6 +116,7 @@
         let texture = new THREE.TextureLoader().load( './image/para/room.jpg');
         const geometry3 = new THREE.SphereGeometry(5000, 64, 32);
         let material3 = new THREE.MeshBasicMaterial( { map: texture } );
+
         material3.side = THREE.BackSide;
         let sphere = new THREE.Mesh(geometry3, material3);
         sphere.position.set(0,0,3000);
