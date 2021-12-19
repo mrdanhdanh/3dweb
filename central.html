@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Web 3D</title>
 
     <link rel="stylesheet" href="./css/bootstrap.min.css">
@@ -15,7 +17,7 @@
             <a class="nav-link" href="#3dcentral">Central</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="moveCam(1050,1500,550)">Room 1</a>
+            <a class="nav-link" href="#" onclick="moveCam(710,1500,730,0.92,0.08,-0.38)">Room 1</a>
         </li>
     </ul>
     <div id="status">
@@ -49,13 +51,19 @@
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/threex.domevents.js"></script>
     <script>
-        function moveCam(x,y,z) {
+        function moveCam(x,y,z,a,b,c) {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             camera.position.set(x,y,z);
-            controls.target.x = x + 100*XYZ.getComponent(0) ;
-            controls.target.y = y + 100*XYZ.getComponent(1);
-            controls.target.z = z + 100*XYZ.getComponent(2);
+            if (a==0&&b==0&&c==0) {
+                controls.target.x = x + 100*XYZ.getComponent(0);
+                controls.target.y = y + 100*XYZ.getComponent(1);
+                controls.target.z = z + 100*XYZ.getComponent(2);
+            } else {
+                controls.target.x = x + 100*a;
+                controls.target.y = y + 100*b;
+                controls.target.z = z + 100*c;
+            }
             controls.update();
         }
         function nhapnhay(obj) {
@@ -102,7 +110,7 @@
 
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 5, 200000 );
         let controls = new THREE.OrbitControls(camera, renderer.domElement ); //xoay phòng, zoom
-        moveCam(0,1500,10000);
+        moveCam(0,1500,10000,0,0,0);
 
         //tạo khu central
         let centralTex = new THREE.TextureLoader().load( './image/central.webp');
@@ -138,7 +146,6 @@
         const mouse = new THREE.Vector2();
 
         function onMouseMove( event ) {
-
             // calculate mouse position in normalized device coordinates
             // (-1 to +1) for both components
 
@@ -149,8 +156,6 @@
 
             // calculate objects intersecting the picking ray
             let intersects = raycaster.intersectObjects( scene.children );
-
-
             if (intersects[0].object.material.uuid == button.material.uuid) {
                 $('html,body').css('cursor', 'pointer');
             } else {
@@ -169,7 +174,7 @@
         animate();
     </script>
     <!-- Nạp các phòng  -->
-    <script src="./js/room/room_1.js"></script>
+    <script src="./js/room_1/room_1.js"></script>
 
     <script>
         $(document).ready(function(){
@@ -219,28 +224,28 @@
             camera.getWorldDirection(XYZ);
             let x = camera.position.x + 300*XYZ.getComponent(0);
             let z = camera.position.z + 300*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveBack() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x - 300*XYZ.getComponent(0);
             let z = camera.position.z - 300*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveLeft() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x + 300*XYZ.getComponent(2);
             let z = camera.position.z - 300*XYZ.getComponent(0);
-            moveCam(x,camera.position.y,z);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveRight() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x - 300*XYZ.getComponent(2);
             let z = camera.position.z + 300*XYZ.getComponent(0);
-            moveCam(x,camera.position.y,z);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
     </script>
 </body>

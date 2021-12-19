@@ -84,7 +84,7 @@ function room_1_ClickEvents(event){
         }
     }
     if (event.target == room_1_dop) {
-        moveCam(room_1_posx-1600,camera.position.y,room_1_posz+600);
+        moveCam(room_1_posx-1600,camera.position.y,room_1_posz+600,0,0,0);
     }
 }
 
