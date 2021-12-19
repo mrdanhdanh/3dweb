@@ -147,18 +147,55 @@
         let ground = new THREE.Mesh(groundGeo, groundMat);
         scene.add(ground);
         //test button
-        const buttonGeo = new THREE.CircleGeometry(1000, 128);
-        buttonGeo.rotateY(-Math.PI/2);
+        const buttonGeo = new THREE.SphereGeometry(1000, 64,32);
         let buttonMat = new THREE.MeshBasicMaterial( { color: 0xffffff } );
         buttonMat.transparent = true;
         let button = new THREE.Mesh(buttonGeo, buttonMat);
         button.position.set(3000,1000,0);
-        
-        button2 = button.clone();
-        button2.position.set(4000,1000,0);
         scene.add(button);
+
+        button2 = button.clone();
+        button.position.set(5000,1000,0);
+
         scene.add(button2);
         nhapnhay(button);
+
+
+        //Sample click events
+        var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+        domEvents.addEventListener(button, 'click', onCubeClick, false);
+        function onCubeClick(event){
+            if (event.target == button) {
+                alert('Hello World!!!');
+            }
+        }
+
+        //Đổi con trỏ chuột thành pointer khi over
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove( event ) {
+
+            // calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            // update the picking ray with the camera and mouse position
+            raycaster.setFromCamera( mouse, camera );
+
+            // calculate objects intersecting the picking ray
+            let intersects = raycaster.intersectObjects( scene.children );
+
+
+            if (intersects[0].object.material.uuid == button.material.uuid) {
+                $('html,body').css('cursor', 'pointer');
+            } else {
+                $('html,body').css('cursor', 'default');
+            }
+        }
+        window.addEventListener( 'mousemove', onMouseMove, false );
+        //
 
 
         function animate() {
