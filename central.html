@@ -17,7 +17,7 @@
             <a class="nav-link" href="#3dcentral">Central</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="moveCam(710,1500,730,0.92,0.08,-0.38)">Room 1</a>
+            <a class="nav-link" href="#" onclick="moveCam(-1270,1500,1260,0.92,0.012,0.37)">Room 1</a>
         </li>
     </ul>
     <div id="status">
@@ -50,6 +50,7 @@
     <script src="./js/three.min.js"></script>
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/threex.domevents.js"></script>
+    <script type="module" src="./js/GLTFLoader.js"></script>
     <script>
         function moveCam(x,y,z,a,b,c) {
             let XYZ = new THREE.Vector3();
@@ -98,9 +99,9 @@
     </script>
     <script>
         //Mặc định:
-        //- Trục x: nhìn qua phải
+        //- Trục x: nhìn thẳng 
         //- Trục y: nhìn lên trên
-        //- trục z: nhìn ra trước
+        //- trục z: nhìn qua phải
         let scene, camera, renderer;
         scene = new THREE.Scene();
         renderer = new THREE.WebGLRenderer({antialias:true, alpha: true});
@@ -110,7 +111,7 @@
 
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 5, 200000 );
         let controls = new THREE.OrbitControls(camera, renderer.domElement ); //xoay phòng, zoom
-        moveCam(0,1500,10000,0,0,0);
+        moveCam(-10000,1500,0,1,0,0);
 
         //tạo khu central
         let centralTex = new THREE.TextureLoader().load( './image/central.webp');
@@ -141,11 +142,34 @@
         // button.position.set
         // scene.add(button2);
 
+        
+
+
+        
+    </script>
+    <!-- Nạp các phòng  -->
+    <script src="./js/room_1/room_1.js"></script>
+    <script type="module" src="./js/room_1/room_1_module.js"></script>
+
+    <script>
+        //dùng để hiển thị các scene lên render
+        function animate() {
+            renderer.render( scene, camera );
+            renderer.autoClear = false;
+
+            //mỗi phòng sẽ có 1 scene khác nhau để tiện cho việc di chuyển và xoay phòng, bắt buộc phải thêm thủ công ở đây
+            renderer.render( scene_r1, camera );
+
+            requestAnimationFrame( animate );
+            controls.update();
+        };
+        animate();
+
         //Đổi con trỏ chuột thành pointer khi over button
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-
         function onMouseMove( event ) {
+
             // calculate mouse position in normalized device coordinates
             // (-1 to +1) for both components
 
@@ -156,9 +180,17 @@
 
             // calculate objects intersecting the picking ray
             let intersects = raycaster.intersectObjects( scene.children );
-            if (intersects[0].object.material.uuid == button.material.uuid) {
-                $('html,body').css('cursor', 'pointer');
-            } else {
+            let int_r1 = raycaster.intersectObjects( scene_r1.children);
+            intersects = intersects.concat( int_r1);
+
+            let check = false;
+            for (let i=0; i<intersects.length; i++) {
+                if (intersects[i].object.material.uuid == button.material.uuid) {
+                    check = true;
+                    $('html,body').css('cursor', 'pointer');
+                }
+            }
+            if (check == false) {
                 $('html,body').css('cursor', 'default');
             }
         }
@@ -166,17 +198,6 @@
         //
 
 
-        function animate() {
-            renderer.render( scene, camera );
-            requestAnimationFrame( animate );
-            controls.update();
-        };
-        animate();
-    </script>
-    <!-- Nạp các phòng  -->
-    <script src="./js/room_1/room_1.js"></script>
-
-    <script>
         $(document).ready(function(){
             window.addEventListener('resize', function() {
                 var width = window.innerWidth;
@@ -190,7 +211,10 @@
             });
         });
         function getDirection() {
-            $('#direction').html(camera.position.x+'|'+camera.position.y+'|'+camera.position.z);
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
+            $('#direction').html(camera.position.x+','+camera.position.y+','+camera.position.z+','+XYZ.getComponent(0)+','+XYZ.getComponent(1)+','+XYZ.getComponent(2));
+
         }
         
         $(document).on('keydown', function(e) {

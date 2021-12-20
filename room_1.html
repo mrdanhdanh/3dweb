@@ -64,10 +64,18 @@
     
     <script>
         function moveCam(x,y,z,a,b,c) {
+            let XYZ = new THREE.Vector3();
+            camera.getWorldDirection(XYZ);
             camera.position.set(x,y,z);
-            controls.target.x = a;
-            controls.target.y = b;
-            controls.target.z = c;
+            if (a==0&&b==0&&c==0) {
+                controls.target.x = x + 100*XYZ.getComponent(0);
+                controls.target.y = y + 100*XYZ.getComponent(1);
+                controls.target.z = z + 100*XYZ.getComponent(2);
+            } else {
+                controls.target.x = x + 100*a;
+                controls.target.y = y + 100*b;
+                controls.target.z = z + 100*c;
+            }
             controls.update();
         }
         function nhapnhay(obj) {
@@ -115,7 +123,7 @@
 
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 5, 200000 );
         let controls = new THREE.OrbitControls(camera, renderer.domElement ); //xoay phòng, zoom
-        moveCam(0,1500,0,50,1500,0);
+        moveCam(-5000,1500,0,1,0,0);
 
         //tạo khu central
         let centralTex = new THREE.TextureLoader().load( './image/central.webp');
@@ -141,7 +149,7 @@
         buttonMat.transparent = true;
         let button = new THREE.Mesh(buttonGeo, buttonMat);
         button.position.set(13000,1000,0);
-        nhapnhay(button); //hiệu ứng cho button
+        //nhapnhay(button); //hiệu ứng cho button
         // Clone a button
         // button2 = button.clone();
         // button.position.set(5000,1000,0);
@@ -158,44 +166,20 @@
             }
         }
 
-        //Đổi con trỏ chuột thành pointer khi over button
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        function onMouseMove( event ) {
-
-            // calculate mouse position in normalized device coordinates
-            // (-1 to +1) for both components
-
-            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-            // update the picking ray with the camera and mouse position
-            raycaster.setFromCamera( mouse, camera );
-
-            // calculate objects intersecting the picking ray
-            let intersects = raycaster.intersectObjects( scene.children );
-
-
-            if (intersects[0].object.material.uuid == button.material.uuid) {
-                $('html,body').css('cursor', 'pointer');
-            } else {
-                $('html,body').css('cursor', 'default');
-            }
-        }
-        window.addEventListener( 'mousemove', onMouseMove, false );
-        //
-
-
-
         
+
+
+
+        let scene_r1 = new THREE.Scene();
+        //scene_r1.rotateY(-Math.PI/8);
         //nạp hình vách ngoài
         let room_1_out_mat = [];
-        let room_1_texout_ft = new THREE.TextureLoader().load( './image/room_ft.jpg');
-        let room_1_texout_bk = new THREE.TextureLoader().load( './image/room_bk.jpg');
-        let room_1_texout_up = new THREE.TextureLoader().load( './image/room_up.jpg');
-        let room_1_texout_dn = new THREE.TextureLoader().load( './image/room_dn.jpg');
-        let room_1_texout_rt = new THREE.TextureLoader().load( './image/room_rt.jpg');
-        let room_1_texout_lf = new THREE.TextureLoader().load( './image/room_lf.jpg');
+        let room_1_texout_ft = new THREE.TextureLoader().load( './image/room_1/room_out_ft.jpg');
+        let room_1_texout_bk = new THREE.TextureLoader().load( './image/room_1/room_out_bk.jpg');
+        let room_1_texout_up = new THREE.TextureLoader().load( './image/room_1/room_out_up.jpg');
+        let room_1_texout_dn = new THREE.TextureLoader().load( './image/room_1/room_out_dn.jpg');
+        let room_1_texout_rt = new THREE.TextureLoader().load( './image/room_1/room_out_rt.jpg');
+        let room_1_texout_lf = new THREE.TextureLoader().load( './image/room_1/room_out_lf.jpg');
         
         room_1_out_mat.push(new THREE.MeshBasicMaterial( { map: room_1_texout_ft }));
         room_1_out_mat.push(new THREE.MeshBasicMaterial( { map: room_1_texout_bk }));
@@ -233,26 +217,32 @@
         //Tạo phòng
         const room_1_geo = new THREE.BoxGeometry(4000,3500,4000);
         let room_1_out = new THREE.Mesh( room_1_geo, room_1_out_mat );
-        scene.add( room_1_out );        
+        scene_r1.add( room_1_out );        
         let room_1_in = new THREE.Mesh( room_1_geo, room_1_in_mat );
-        scene.add( room_1_in );
-        let room_1_posx = 0; //3 tọa độ quan trọng để xếp phòng vào central
-        let room_1_posy = 0;
+        scene_r1.add( room_1_in );
+        let room_1_posx = 5000; //3 tọa độ quan trọng để xếp phòng vào central
+        let room_1_posy = 1751;
         let room_1_posz = 0;
         room_1_out.position.set(room_1_posx, room_1_posy, room_1_posz);
         room_1_in.position.set(room_1_posx, room_1_posy, room_1_posz);
 
         //Tạo button chiếu clip
         room_1_button = button.clone();
-        let room_1_bposx = room_1_posx + 1900;
+        let room_1_bposx = room_1_posx + 1800;
         let room_1_bposy = room_1_posy + 0;
-        let room_1_bposz = room_1_posz - 1200;
+        let room_1_bposz = room_1_posz - 800;
         room_1_button.position.set(room_1_bposx, room_1_bposy, room_1_bposz);
-        scene.add(room_1_button);
+        scene_r1.add(room_1_button);
+
+        //Tạo nút mở cửa
+        room_1_dop = button.clone();
+        let room_1_dopposx = room_1_posx - 2100;
+        let room_1_dopposy = room_1_posy - 100;
+        let room_1_dopposz = room_1_posz + 0;
+        room_1_dop.position.set(room_1_dopposx, room_1_dopposy, room_1_dopposz);
+        scene_r1.add(room_1_dop);
 
         //Chiếu clip event
-        var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
-        domEvents.addEventListener(room_1_button, 'click', room_1_ClickEvents, false);
         function room_1_ClickEvents(event){
             if (event.target == room_1_button) {
                 room_1_button.visible = false;
@@ -266,25 +256,76 @@
                     room_1_button.visible = true;
                 }
             }
+            if (event.target == room_1_dop) {
+                moveCam(room_1_posx-1600,camera.position.y,room_1_posz+600,0,0,0);
+            }
         }
+
+        //Khai báo event
+        var domEvents = new THREEx.DomEvents(camera, renderer.domElement);
+        domEvents.addEventListener(room_1_button, 'click', room_1_ClickEvents, false);
+        domEvents.addEventListener(room_1_dop, 'click', room_1_ClickEvents, false);
 
 
         
-
-
-
-
-
-
+    </script>
+    <script type="module">
+        import { GLTFLoader } from './js/GLTFLoader.js';
+        const loader = new GLTFLoader();
+        let obj;
+        loader.load( './gltf/room_1/tree_blender_file.gltf', function ( gltf ) {
+            obj = gltf.scene;
+            let scale = 175;
+            obj.scale.set(scale,scale,scale);
+            obj.rotateY(-Math.PI*3/4);
+            obj.position.set(room_1_posx-2000,0,room_1_posz+3500);
+            scene_r1.add( obj );
+        });
+        
+        
+    </script>
+    <script>
         function animate() {
             renderer.render( scene, camera );
+            renderer.autoClear = false;
+            renderer.render( scene_r1, camera );
             requestAnimationFrame( animate );
             controls.update();
         };
         animate();
-    </script>
-    
-    <script>
+
+        //Đổi con trỏ chuột thành pointer khi over button
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        function onMouseMove( event ) {
+
+            // calculate mouse position in normalized device coordinates
+            // (-1 to +1) for both components
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            // update the picking ray with the camera and mouse position
+            raycaster.setFromCamera( mouse, camera );
+
+            // calculate objects intersecting the picking ray
+            let intersects = raycaster.intersectObjects( scene.children );
+            let int_r1 = raycaster.intersectObjects( scene_r1.children);
+            intersects = intersects.concat( int_r1);
+
+            let check = false;
+            for (let i=0; i<intersects.length; i++) {
+                if (intersects[i].object.material.uuid == button.material.uuid) {
+                    check = true;
+                    $('html,body').css('cursor', 'pointer');
+                }
+            }
+            if (check == false) {
+                $('html,body').css('cursor', 'default');
+            }
+        }
+        window.addEventListener( 'mousemove', onMouseMove, false );
+        //
+
         $(document).ready(function(){
             window.addEventListener('resize', function() {
                 var width = window.innerWidth;
@@ -302,8 +343,8 @@
         }
         
         $(document).on('keydown', function(e) {
-            let i = e.keyCode;
-            switch(i) {
+            let movekey = e.keyCode;
+            switch (movekey) {
                 case 87:
                     moveForward();
                     break;
@@ -325,63 +366,35 @@
         function hideMP() {
             $("#movepad").toggle();
         }
-        function roomJump() {
-            let i = $('#sel1').val();
-            switch(i) {
-                case '1':
-                    room_1.position.set(0,0,0);
-                    cube2.position.set(400,-200,800);
-                    sphere.position.set(0,0,3000);
-                    break;
-                case '2':
-                    room_1.position.set(0,0,-3000);
-                    cube2.position.set(400,-200,-2200);
-                    sphere.position.set(0,0,0);
-                    break;
-                default:
-                    // code block
-            }
-        }
+        
         //Function di chuyển
         function moveForward() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x + 300*XYZ.getComponent(0);
             let z = camera.position.z + 300*XYZ.getComponent(2);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveBack() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x - 300*XYZ.getComponent(0);
             let z = camera.position.z - 300*XYZ.getComponent(2);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveLeft() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x + 300*XYZ.getComponent(2);
             let z = camera.position.z - 300*XYZ.getComponent(0);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
         function moveRight() {
             let XYZ = new THREE.Vector3();
             camera.getWorldDirection(XYZ);
             let x = camera.position.x - 300*XYZ.getComponent(2);
             let z = camera.position.z + 300*XYZ.getComponent(0);
-            let a = x + 100*XYZ.getComponent(0);
-            let b = camera.position.y + 100*XYZ.getComponent(1);
-            let c = z + 100*XYZ.getComponent(2);
-            moveCam(x,camera.position.y,z,a,b,c);
+            moveCam(x,camera.position.y,z,0,0,0);
         }
     </script>
 </body>
