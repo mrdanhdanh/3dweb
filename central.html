@@ -51,6 +51,7 @@
     <script src="./js/OrbitControls.js"></script>
     <script src="./js/threex.domevents.js"></script>
     <script type="module" src="./js/GLTFLoader.js"></script>
+
     <script>
         function moveCam(x,y,z,a,b,c) {
             let XYZ = new THREE.Vector3();
@@ -67,7 +68,7 @@
             }
             controls.update();
         }
-        function nhapnhay(obj) {
+        function blink(obj) {
             var id = null;
             var opa = 30;
             clearInterval(id);
@@ -89,15 +90,14 @@
                             obj.geometry.scale(1.1,1.1,1.1);
                         }
                     }
-                    nhapnhay(obj);
+                    blink(obj);
                 } else {
                     opa = opa - 1; 
                     obj.material.opacity = opa/30;
                 }
             }
         }
-    </script>
-    <script>
+
         //Mặc định:
         //- Trục x: nhìn thẳng 
         //- Trục y: nhìn lên trên
@@ -129,24 +129,19 @@
         let ground = new THREE.Mesh(groundGeo, groundMat);
         scene.add(ground);
 
-
-
         //Button cầu mặc định
         const buttonGeo = new THREE.SphereGeometry(100, 64,32);
         let buttonMat = new THREE.MeshBasicMaterial( { color: 0xffffff } );
         buttonMat.transparent = true;
         let button = new THREE.Mesh(buttonGeo, buttonMat);
-        nhapnhay(button); //hiệu ứng cho button
+        blink(button); //hiệu ứng cho button
         // How to Clone a button
         // button2 = button.clone();
         // button.position.set
         // scene.add(button2);
 
-        
-
-
-        
     </script>
+
     <!-- Nạp các phòng  -->
     <script src="./js/room_1/room_1.js"></script>
     <script type="module" src="./js/room_1/room_1_module.js"></script>
